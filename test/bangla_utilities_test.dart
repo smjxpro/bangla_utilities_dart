@@ -12,7 +12,7 @@ void main() {
       {
         'weekday': 'রবিবার',
         'day': '১৭',
-        'month': '৫',
+        'month': '২',
         'monthName': 'জ্যৈষ্ঠ',
         'year': '১৪২৭',
         'season': 'গ্রীষ্ম',
@@ -20,10 +20,10 @@ void main() {
     );
     expect(
       BanglaUtility.getBanglaDate(day: 31, month: 5, year: 2020),
-      '১৭-৫-১৪২৭',
+      '১৭-২-১৪২৭',
     );
     expect(BanglaUtility.getBanglaDay(day: 31, month: 5, year: 2020), '১৭');
-    expect(BanglaUtility.getBanglaMonth(day: 31, month: 5, year: 2020), '৫');
+    expect(BanglaUtility.getBanglaMonth(day: 31, month: 5, year: 2020), '২');
     expect(
       BanglaUtility.getBanglaMonthName(day: 31, month: 5, year: 2020),
       'জ্যৈষ্ঠ',

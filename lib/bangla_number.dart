@@ -1,12 +1,17 @@
+/// Bangla digits
 const kBanglaNumber = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 
+/// English digits
 const kEnglishNumber = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
+/// A class that represents a Bangla number.
 class BanglaNumber {
+  /// The value of the number.
   final String value;
 
+  /// Creates a new BanglaNumber object from an English number.
   BanglaNumber.fromEnglish(int number)
-    : value = _englishToBanglaDigit(englishDigit: number);
+      : value = _englishToBanglaDigit(englishDigit: number);
 
   /// Returns Bangla equivalent of English digit
   /// ```dart
