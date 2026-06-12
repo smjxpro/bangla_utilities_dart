@@ -1,29 +1,71 @@
-const kBanglaNumber = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+/// Bangla (Bengali) numeral constants.
+const List<String> _kBanglaDigits = [
+  '০',
+  '১',
+  '২',
+  '৩',
+  '৪',
+  '৫',
+  '৬',
+  '৭',
+  '৮',
+  '৯',
+];
 
-const kEnglishNumber = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+const int _kZeroCodeUnit = 48; // '0'.codeUnitAt(0)
 
+/// Converts English (ASCII) numerals to their Bangla equivalents.
+///
+/// ```dart
+/// final n = BanglaNumber.fromEnglish(1234);
+/// print(n.value); // ১২৩৪
+///
+/// final s = BanglaNumber.fromString('Price: 42.5');
+/// print(s.value); // Price: ৪২.৫
+/// ```
 class BanglaNumber {
+  /// The Bangla numeral string.
   final String value;
 
-  BanglaNumber.fromEnglish(int number)
-    : value = _englishToBanglaDigit(englishDigit: number);
+  /// The original English integer (only valid when constructed via [fromEnglish]).
+  final int? englishValue;
 
-  /// Returns Bangla equivalent of English digit
+  const BanglaNumber._({required this.value, this.englishValue});
+
+  /// Creates a [BanglaNumber] from an [int].
+  ///
+  /// All ASCII digits in the string representation of [number] are replaced
+  /// with their Bangla counterparts.
+  factory BanglaNumber.fromEnglish(int number) => BanglaNumber._(
+        value: _convertDigits(number.toString()),
+        englishValue: number,
+      );
+
+  /// Creates a [BanglaNumber] from an arbitrary [String].
+  ///
+  /// Every ASCII digit (`0`–`9`) in [source] is replaced with the
+  /// corresponding Bangla digit. Other characters (letters, punctuation,
+  /// whitespace, signs) are preserved as-is.
+  ///
   /// ```dart
-  /// BanglaUtility.englishToBanglaDigit(5) == '৫'
+  /// BanglaNumber.fromString('2024-01-15').value // ২০২৪-০১-১৫
   /// ```
-  static String _englishToBanglaDigit({required int englishDigit}) {
-    String englishDigitStr = englishDigit.toString();
-    String banglaDigit = "";
-    for (int i = 0; i < englishDigitStr.length; i++) {
-      if (kEnglishNumber.contains(englishDigitStr[i])) {
-        banglaDigit +=
-            kBanglaNumber[kEnglishNumber.indexOf(englishDigitStr[i])];
+  factory BanglaNumber.fromString(String source) =>
+      BanglaNumber._(value: _convertDigits(source));
+
+  /// Replaces each ASCII digit in [s] with the corresponding Bangla digit
+  /// using O(1) index arithmetic instead of a linear search.
+  static String _convertDigits(String s) {
+    final StringBuffer buf = StringBuffer();
+    for (int i = 0; i < s.length; i++) {
+      final int codeUnit = s.codeUnitAt(i);
+      if (codeUnit >= _kZeroCodeUnit && codeUnit <= _kZeroCodeUnit + 9) {
+        buf.write(_kBanglaDigits[codeUnit - _kZeroCodeUnit]);
       } else {
-        banglaDigit += englishDigitStr[i];
+        buf.write(s[i]);
       }
     }
-    return banglaDigit;
+    return buf.toString();
   }
 
   @override

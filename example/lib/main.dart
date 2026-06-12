@@ -2,93 +2,99 @@ import 'package:bangla_utilities/bangla_utilities.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const BanglaUtilitiesExampleApp());
 }
 
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-  }
+class BanglaUtilitiesExampleApp extends StatelessWidget {
+  const BanglaUtilitiesExampleApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Bangla Utilities Plugin example app'),
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return const MaterialApp(
+      title: 'Bangla Utilities Example',
+      home: BanglaDatePage(),
+    );
+  }
+}
+
+class BanglaDatePage extends StatelessWidget {
+  const BanglaDatePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final BanglaDate today = BanglaDate.today();
+    final BanglaDate historical =
+        BanglaDate.fromDateTime(DateTime(2020, 5, 31));
+    final BanglaNumber converted = BanglaNumber.fromEnglish(1234);
+    final BanglaNumber fromStr = BanglaNumber.fromString('2024-01-15');
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Bangla Utilities Example'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Bangla date of 31st May 2020: '),
-                  //
-                  //
-                  //day, month and year is optional parameter! Uses provide values or current date if not provided!
-                  Text(
-                      '${BanglaUtility.getBanglaDate(day: 31, month: 05, year: 2020)}'),
-                ],
-              ),
+            const Text(
+              "Today's date in Bangla",
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Bangla Month Name: '),
-                  Text(
-                      '${BanglaUtility.getBanglaMonthName(day: 31, month: 05, year: 2020)}'),
-                ],
-              ),
+            const SizedBox(height: 4),
+            _Row('Date', today.date),
+            _Row('Day', today.day),
+            _Row('Month', today.month),
+            _Row('Month name', today.monthName),
+            _Row('Year', today.year),
+            _Row('Weekday', today.weekday),
+            _Row('Season', today.season),
+            _Row('Leap year', today.isLeapYear.toString()),
+            const Divider(height: 32),
+            const Text(
+              'Historical: 31 May 2020',
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Bangla Weekday: '),
-                  Text(
-                      '${BanglaUtility.getBanglaWeekday(day: 31, month: 05, year: 2020)}'),
-                ],
-              ),
+            const SizedBox(height: 4),
+            _Row('Date', historical.date),
+            _Row('Month name', historical.monthName),
+            _Row('Weekday', historical.weekday),
+            const Divider(height: 32),
+            const Text(
+              'Number conversion',
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Bangla Season: '),
-                  Text(
-                      '${BanglaUtility.getBanglaSeason(day: 31, month: 05, year: 2020)}'),
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('1234 in Bangla: '),
-                  //
-                  //
-                  //englishDigit is a Required parameter or else returns null
-                  Text(
-                      '${BanglaUtility.englishToBanglaDigit(englishDigit: 1234)}'),
-                ],
-              ),
-            ),
+            const SizedBox(height: 4),
+            _Row('1234 → Bangla', converted.value),
+            _Row("'2024-01-15' → Bangla", fromStr.value),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _Row extends StatelessWidget {
+  const _Row(this.label, this.value);
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 160,
+            child: Text(
+              '$label:',
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ),
+          Text(value),
+        ],
       ),
     );
   }

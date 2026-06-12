@@ -1,39 +1,48 @@
 import 'package:bangla_utilities/bangla_number.dart';
 
-const _gregEquivalentBanglaMonths = [
-  "পৌষ",
-  "মাঘ",
-  "ফাল্গুন",
-  "চৈত্র",
-  "বৈশাখ",
-  "জ্যৈষ্ঠ",
-  "আষাঢ়",
-  "শ্রাবণ",
-  "ভাদ্র",
-  "আশ্বিন",
-  "কার্তিক",
-  "অগ্রহায়ণ",
+// ---------------------------------------------------------------------------
+// Module-private constants
+// ---------------------------------------------------------------------------
+
+/// Bangla month names ordered to align with the Gregorian month index
+/// (January == index 0, which falls in পৌষ).
+const List<String> _gregEquivalentBanglaMonths = [
+  'পৌষ',
+  'মাঘ',
+  'ফাল্গুন',
+  'চৈত্র',
+  'বৈশাখ',
+  'জ্যৈষ্ঠ',
+  'আষাঢ়',
+  'শ্রাবণ',
+  'ভাদ্র',
+  'আশ্বিন',
+  'কার্তিক',
+  'অগ্রহায়ণ',
 ];
 
-const banglaWeekdays = [
-  "সোমবার",
-  "মঙ্গলবার",
-  "বুধবার",
-  "বৃহস্পতিবার",
-  "শুক্রবার",
-  "শনিবার",
-  "রবিবার",
-];
-const _gregEquivalentBanglaSeasons = [
-  "শীত",
-  "বসন্ত",
-  "গ্রীষ্ম",
-  "বর্ষা",
-  "শরৎ",
-  "হেমন্ত",
+const List<String> _banglaWeekdays = [
+  'সোমবার',
+  'মঙ্গলবার',
+  'বুধবার',
+  'বৃহস্পতিবার',
+  'শুক্রবার',
+  'শনিবার',
+  'রবিবার',
 ];
 
-const _gregEquivalentLastDayOfBanglaMonths = [
+const List<String> _gregEquivalentBanglaSeasons = [
+  'শীত',
+  'বসন্ত',
+  'গ্রীষ্ম',
+  'বর্ষা',
+  'শরৎ',
+  'হেমন্ত',
+];
+
+/// Last Gregorian day of each Gregorian month that still belongs to the
+/// *previous* Bangla month (i.e., the day before the Bangla month starts).
+const List<int> _gregEquivalentLastDayOfBanglaMonths = [
   13,
   12,
   14,
@@ -48,7 +57,8 @@ const _gregEquivalentLastDayOfBanglaMonths = [
   14,
 ];
 
-const totalDaysInBanglaMonths = [
+/// Days in each Bangla month (index 0 == পৌষ).
+const List<int> _totalDaysInBanglaMonths = [
   30,
   30,
   30,
@@ -63,20 +73,58 @@ const totalDaysInBanglaMonths = [
   30,
 ];
 
-const gregEquivalentLeapYearIndexInBanglaMonths = 2;
+/// Index of ফাল্গুন (the month that gains a day in a Gregorian leap year).
+const int _leapYearBanglaMonthIndex = 2;
 
+// ---------------------------------------------------------------------------
+// BanglaDate
+// ---------------------------------------------------------------------------
+
+/// Represents a date in the Bangla (Bengali/Bangla Calendar / বাংলা পঞ্জিকা)
+/// system, derived from a Gregorian input.
+///
+/// ```dart
+/// final today = BanglaDate.today();
+/// print('${today.dayInt} ${today.monthName} ${today.yearInt}');
+///
+/// final historical = BanglaDate.fromDateTime(DateTime(2020, 5, 31));
+/// print(historical.date); // ১৭-৫-১৪২৭
+/// ```
 class BanglaDate {
+  /// Bangla day numeral string (e.g. `'১৭'`).
   final String day;
+
+  /// Bangla month numeral string (e.g. `'৫'`).
   final String month;
+
+  /// Bangla year numeral string (e.g. `'১৪২৭'`).
   final String year;
+
+  /// Bangla month name (e.g. `'জ্যৈষ্ঠ'`).
   final String monthName;
+
+  /// Bangla weekday name (e.g. `'রবিবার'`).
   final String weekday;
+
+  /// Bangla season name (e.g. `'গ্রীষ্ম'`).
   final String season;
+
+  /// Whether the source Gregorian year is a leap year.
   final bool isLeapYear;
 
-  final String date;
+  /// Raw Bangla day as an integer.
+  final int dayInt;
 
-  BanglaDate._({
+  /// Raw Bangla month as an integer (1-based).
+  final int monthInt;
+
+  /// Raw Bangla year as an integer.
+  final int yearInt;
+
+  /// Formatted date string: `'day-month-year'` in Bangla numerals.
+  String get date => '$day-$month-$year';
+
+  const BanglaDate._({
     required this.day,
     required this.month,
     required this.year,
@@ -84,169 +132,115 @@ class BanglaDate {
     required this.weekday,
     required this.season,
     required this.isLeapYear,
-    required this.date,
+    required this.dayInt,
+    required this.monthInt,
+    required this.yearInt,
   });
 
+  // ── Factories ─────────────────────────────────────────────────────────────
+
+  /// Creates a [BanglaDate] for today's date.
+  factory BanglaDate.today() => BanglaDate.fromDateTime(DateTime.now());
+
+  /// Creates a [BanglaDate] from a [DateTime] object.
+  factory BanglaDate.fromDateTime(DateTime dateTime) =>
+      BanglaDate.fromEnglishYearMonthDay(
+        year: dateTime.year,
+        month: dateTime.month,
+        day: dateTime.day,
+      );
+
+  /// Creates a [BanglaDate] from an ISO 8601 date [String] (e.g.
+  /// `'2020-05-31'`). Uses today's date if [dateString] is `null`.
+  factory BanglaDate.fromEnglishDate([String? dateString]) {
+    final DateTime dt =
+        dateString == null ? DateTime.now() : DateTime.parse(dateString);
+    return BanglaDate.fromDateTime(dt);
+  }
+
+  /// Creates a [BanglaDate] from individual Gregorian year, month, and day
+  /// components. Each parameter defaults to the corresponding component of
+  /// today's date when omitted.
   factory BanglaDate.fromEnglishYearMonthDay({
     int? year,
     int? month,
     int? day,
   }) {
-    year ??= DateTime.now().year;
-    month ??= DateTime.now().month;
-    day ??= DateTime.now().day;
+    // Resolve defaults once so helpers never call DateTime.now() independently.
+    final DateTime now = DateTime.now();
+    final int resolvedYear = year ?? now.year;
+    final int resolvedMonth = month ?? now.month;
+    final int resolvedDay = day ?? now.day;
 
-    var bangla = _getBanglaDateMonthYearSeason(
-      year: year,
-      month: month,
-      day: day,
+    final bool leap = _computeIsLeapYear(resolvedYear);
+
+    // Weekday — DateTime weekday: 1=Mon … 7=Sun
+    final String banglaWeekday = _banglaWeekdays[
+        DateTime(resolvedYear, resolvedMonth, resolvedDay).weekday - 1];
+
+    // Bangla year
+    final int banglaYearInt = _computeBanglaYear(
+      year: resolvedYear,
+      month: resolvedMonth,
+      day: resolvedDay,
     );
-    return BanglaDate._(
-      day: bangla['day']!,
-      month: bangla['month']!,
-      year: bangla['year']!,
-      monthName: bangla['monthName']!,
-      weekday: bangla['weekday']!,
-      season: bangla['season']!,
-      isLeapYear: _isLeapYear(year: year),
-      date: '${bangla['day']}-${bangla['month']}-${bangla['year']}',
-    );
-  }
 
-  factory BanglaDate.fromEnglishDate([String? dateString]) {
-    DateTime dateTime;
-    if (dateString == null) {
-      dateTime = DateTime.now();
-    } else {
-      dateTime = DateTime.parse(dateString);
-    }
+    // Bangla month & day (use 0-based month index into the lookup tables)
+    final int monthIndex = resolvedMonth - 1; // 0-based
+    final int banglaMonthInt;
+    final int banglaDayInt;
 
-    return BanglaDate.fromEnglishYearMonthDay(
-      year: dateTime.year,
-      month: dateTime.month,
-      day: dateTime.day,
-    );
-  }
-
-  /// Checks if given English year is a leap  year
-  /// ```dart
-  /// BanglaUtility.isLeapYear(2020) == true
-  /// ```
-  static bool _isLeapYear({int? year}) {
-    year ??= DateTime.now().year;
-    if (year % 400 == 0) {
-      return true;
-    } else if (year % 4 == 0 && year % 100 != 0) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  /// Returns Bangla year for a given English date
-  /// ```dart
-  /// BanglaUtility.getBanglaYear(day:31, month:05, year: 2020) == '১৪২৭'
-  /// ```
-  static String _getBanglaYear({int? day, int? month, int? year}) {
-    DateTime now = DateTime.now();
-
-    year ??= now.year;
-    month ??= now.month;
-
-    day ??= now.day;
-
-    int banglaYear;
-    if (month > 3) {
-      banglaYear = year - 593;
-    } else if (month == 3 && day > 13) {
-      banglaYear = year - 593;
-    } else {
-      banglaYear = year - 594;
-    }
-    return BanglaNumber.fromEnglish(banglaYear).toString();
-  }
-
-  /// Returns Bangla weekday for a given English date
-  /// ```dart
-  /// BanglaUtility.getBanglaWeekday(day:31, month:05, year: 2020) == 'রবিবার'
-  /// ```
-  static String _getBanglaWeekday({int? day, int? month, int? year}) {
-    DateTime now = DateTime.now();
-
-    year ??= now.year;
-    month ??= now.month;
-
-    day ??= now.day;
-
-    DateTime date = DateTime(year, month, day);
-    String banglaWeekday = banglaWeekdays[date.weekday - 1];
-    return banglaWeekday;
-  }
-
-  /// Returns map of Bangla weekday, day, month, month name, year, season for a given English date
-  /// ```dart
-  /// BanglaUtility.getBanglaDateMonthYearSeason(day:31, month:05, year: 2020) == {
-  ///       "weekday": 'রবিবার',
-  ///       "day": '১৭',
-  ///       "month": '৫',
-  ///       "monthName": 'জ্যৈষ্ঠ',
-  ///       "year": '১৪২৭',
-  ///       "season": 'গ্রীষ্ম'
-  ///     }
-  /// ```
-  static Map<String, String> _getBanglaDateMonthYearSeason({
-    int? day,
-    int? month,
-    int? year,
-  }) {
-    int banglaDay;
-    int banglaMonth;
-    String banglaMonthName;
-    String banglaYear;
-
-    DateTime now = DateTime.now();
-
-    year ??= now.year;
-
-    month ??= now.month;
-
-    day ??= now.day;
-
-    String banglaWeekday = _getBanglaWeekday(
-      day: day,
-      month: month,
-      year: year,
-    );
-    month = month - 1;
-    banglaYear = _getBanglaYear(day: day, month: month, year: year);
-
-    if (day <= _gregEquivalentLastDayOfBanglaMonths[month]) {
-      int totalDaysInCurrentBanglaMonth = totalDaysInBanglaMonths[month];
-      if (month == gregEquivalentLeapYearIndexInBanglaMonths &&
-          _isLeapYear(year: year)) {
-        totalDaysInCurrentBanglaMonth += 1;
+    if (resolvedDay <= _gregEquivalentLastDayOfBanglaMonths[monthIndex]) {
+      // Still in the previous Bangla month.
+      int daysInBanglaMonth = _totalDaysInBanglaMonths[monthIndex];
+      if (monthIndex == _leapYearBanglaMonthIndex && leap) {
+        daysInBanglaMonth += 1;
       }
-      banglaDay =
-          totalDaysInCurrentBanglaMonth +
-          day -
-          _gregEquivalentLastDayOfBanglaMonths[month];
-      banglaMonth = month;
-      banglaMonthName = _gregEquivalentBanglaMonths[banglaMonth];
+      banglaDayInt = daysInBanglaMonth +
+          resolvedDay -
+          _gregEquivalentLastDayOfBanglaMonths[monthIndex];
+      banglaMonthInt = monthIndex; // 0-based, same as Gregoran month -1
     } else {
-      banglaDay = day - _gregEquivalentLastDayOfBanglaMonths[month];
-      banglaMonth = (month + 1) % 12;
-      banglaMonthName = _gregEquivalentBanglaMonths[banglaMonth];
+      // Already into the next Bangla month.
+      banglaDayInt =
+          resolvedDay - _gregEquivalentLastDayOfBanglaMonths[monthIndex];
+      banglaMonthInt = (monthIndex + 1) % 12;
     }
 
-    String banglaSeason = _gregEquivalentBanglaSeasons[banglaMonth ~/ 2];
+    final String season = _gregEquivalentBanglaSeasons[banglaMonthInt ~/ 2];
+    final String monthName = _gregEquivalentBanglaMonths[banglaMonthInt];
 
-    return {
-      "weekday": banglaWeekday,
-      "day": BanglaNumber.fromEnglish(banglaDay).value,
-      "month": BanglaNumber.fromEnglish(banglaMonth).value,
-      "monthName": banglaMonthName,
-      "year": banglaYear,
-      "season": banglaSeason,
-    };
+    return BanglaDate._(
+      day: BanglaNumber.fromEnglish(banglaDayInt).value,
+      month: BanglaNumber.fromEnglish(banglaMonthInt).value,
+      year: BanglaNumber.fromEnglish(banglaYearInt).value,
+      monthName: monthName,
+      weekday: banglaWeekday,
+      season: season,
+      isLeapYear: leap,
+      dayInt: banglaDayInt,
+      monthInt: banglaMonthInt,
+      yearInt: banglaYearInt,
+    );
+  }
+
+  // ── Private helpers ────────────────────────────────────────────────────────
+
+  /// Returns `true` if [year] is a Gregorian leap year.
+  static bool _computeIsLeapYear(int year) {
+    if (year % 400 == 0) return true;
+    if (year % 4 == 0 && year % 100 != 0) return true;
+    return false;
+  }
+
+  /// Computes the Bangla year for the given Gregorian date components.
+  static int _computeBanglaYear({
+    required int year,
+    required int month,
+    required int day,
+  }) {
+    if (month > 3) return year - 593;
+    if (month == 3 && day > 13) return year - 593;
+    return year - 594;
   }
 }
