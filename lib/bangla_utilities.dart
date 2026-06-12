@@ -7,4 +7,5 @@
 library;
 
 export 'package:bangla_utilities/bangla_date.dart';
+export 'package:bangla_utilities/bangla_date_formatter.dart';
 export 'package:bangla_utilities/bangla_number.dart';

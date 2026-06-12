@@ -187,7 +187,7 @@ class BanglaDate {
 
     // Bangla month & day (use 0-based month index into the lookup tables)
     final int monthIndex = resolvedMonth - 1; // 0-based
-    final int banglaMonthInt;
+    final int banglaMonthArrayIndex;
     final int banglaDayInt;
 
     if (resolvedDay <= _gregEquivalentLastDayOfBanglaMonths[monthIndex]) {
@@ -199,16 +199,21 @@ class BanglaDate {
       banglaDayInt = daysInBanglaMonth +
           resolvedDay -
           _gregEquivalentLastDayOfBanglaMonths[monthIndex];
-      banglaMonthInt = monthIndex; // 0-based, same as Gregoran month -1
+      banglaMonthArrayIndex = monthIndex;
     } else {
       // Already into the next Bangla month.
       banglaDayInt =
           resolvedDay - _gregEquivalentLastDayOfBanglaMonths[monthIndex];
-      banglaMonthInt = (monthIndex + 1) % 12;
+      banglaMonthArrayIndex = (monthIndex + 1) % 12;
     }
 
-    final String season = _gregEquivalentBanglaSeasons[banglaMonthInt ~/ 2];
-    final String monthName = _gregEquivalentBanglaMonths[banglaMonthInt];
+    // Convert 0-based array index to the true 1-based Bangla month number:
+    // পৌষ(0)→9, মাঘ(1)→10, ফাল্গুন(2)→11, চৈত্র(3)→12, বৈশাখ(4)→1, …
+    final int banglaMonthInt = (banglaMonthArrayIndex + 8) % 12 + 1;
+
+    final String season =
+        _gregEquivalentBanglaSeasons[banglaMonthArrayIndex ~/ 2];
+    final String monthName = _gregEquivalentBanglaMonths[banglaMonthArrayIndex];
 
     return BanglaDate._(
       day: BanglaNumber.fromEnglish(banglaDayInt).value,

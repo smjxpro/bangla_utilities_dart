@@ -1,3 +1,17 @@
+## 2.0.1
+
+**Bug fixes:**
+* Fixed `BanglaDate.monthInt` and `BanglaDate.month` to return the correct
+  1-based Bangla month number (বৈশাখ=1 … পৌষ=9 … চৈত্র=12) instead of a
+  0-based internal array index.
+* Added `BanglaDateFormatter` — format a `BanglaDate` with pattern tokens
+  (`DD`, `MM`, `YYYY`, `YY`, `D`, `M`, `d`, `S`).
+* Fixed token replacement order in `BanglaDateFormatter` (longest tokens
+  first) to prevent partial collision (e.g. `D` consuming part of `DD`).
+* Fixed `BanglaDateFormatter` zero-padding to use rune-safe counting so
+  single-digit Bangla numerals are padded with `০` correctly.
+* Exported `BanglaDateFormatter` from the main `bangla_utilities` library.
+
 ## 2.0.0
 
 **Breaking changes:**

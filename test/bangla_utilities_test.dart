@@ -72,28 +72,28 @@ void main() {
     group('fromEnglishYearMonthDay — reference date 31 May 2020', () {
       test('day', () => expect(ref.day, '১৭'));
       test('dayInt', () => expect(ref.dayInt, 17));
-      test('month', () => expect(ref.month, '৫'));
-      test('monthInt', () => expect(ref.monthInt, 5));
+      test('month', () => expect(ref.month, '২'));
+      test('monthInt', () => expect(ref.monthInt, 2));
       test('year', () => expect(ref.year, '১৪২৭'));
       test('yearInt', () => expect(ref.yearInt, 1427));
       test('monthName', () => expect(ref.monthName, 'জ্যৈষ্ঠ'));
       test('weekday', () => expect(ref.weekday, 'রবিবার'));
       test('season', () => expect(ref.season, 'গ্রীষ্ম'));
-      test('date getter', () => expect(ref.date, '১৭-৫-১৪২৭'));
+      test('date getter', () => expect(ref.date, '১৭-২-১৪২৭'));
       test('isLeapYear', () => expect(ref.isLeapYear, true));
     });
 
     group('fromEnglishDate', () {
       test('parses ISO 8601 string', () {
         final BanglaDate d = BanglaDate.fromEnglishDate('2020-05-31');
-        expect(d.date, '১৭-৫-১৪২৭');
+        expect(d.date, '১৭-২-১৪২৭');
       });
     });
 
     group('fromDateTime', () {
       test('equivalent to fromEnglishYearMonthDay', () {
         final BanglaDate d = BanglaDate.fromDateTime(DateTime(2020, 5, 31));
-        expect(d.date, '১৭-৫-১৪২৭');
+        expect(d.date, '১৭-২-১৪২৭');
       });
     });
 
