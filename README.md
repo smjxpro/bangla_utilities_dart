@@ -23,7 +23,7 @@ No Flutter dependency — works in any Dart environment (Flutter, server, CLI, w
 
 ```yaml
 dependencies:
-  bangla_utilities: ^2.0.1
+  bangla_utilities: ^2.0.2
 ```
 
 ```bash

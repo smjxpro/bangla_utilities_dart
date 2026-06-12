@@ -1,3 +1,9 @@
+## 2.0.2
+
+**Bug fixes:**
+
+* Fixed README.md file.
+
 ## 2.0.1
 
 **Bug fixes:**
